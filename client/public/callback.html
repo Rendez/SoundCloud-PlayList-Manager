@@ -5,8 +5,6 @@
 </head>
 <body>
   <script type="text/javascript">
-    alert(location.href);
-    alert(location.hash);
     try {
       localStorage.setItem('soundcloud-authtoken', location.hash.substring(1).match(/access_token=([^&]+)/)[1]);
     } catch(e) {
