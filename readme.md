@@ -2,4 +2,4 @@
 
 This is a quick and dirty implementation of a media player for SoundCloud.
 
-#### [See Application](soundcloud-playlist-manager.herokuapp.com) ####
+#### [See Application](http://soundcloud-playlist-manager.herokuapp.com) ####
