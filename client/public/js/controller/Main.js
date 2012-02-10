@@ -58,7 +58,9 @@ $.Function.inherits(controller, $.Controller);
   this.authenticate = function() {
     var me = this;
     
-    SC.connect();
+    SC.connect(function() {
+      
+    });
   }
   
 }).call(controller.prototype);
