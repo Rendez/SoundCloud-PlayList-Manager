@@ -1,0 +1,245 @@
+(function() {
+"use strict";
+
+$.Collection = function(options) {
+  $.Events.call(this, options && options.events);
+  
+  var model = options.model;
+  
+  if ($[model]) {
+    if (typeof model === 'string') {
+      model = $[model];
+    }
+  }
+  if (!model) {
+    throw new Error('Model has to be included in the options as first argument.');
+  }
+  this._model = model;
+  this._proxy = this._proxy || options.proxy || new $.LocalStorageProxy(model.prototype._name);
+  this._sorter = model._idProperty || options.sorter;
+  this._autoSave = options.autoSave || true;
+  
+  this.initialize();
+};
+
+$.Function.mixin($.Collection, $.Events);
+
+(function() {
+  
+  var incr = 0;
+  var eventHooks = [
+    'update',
+    'add',
+    'remove'
+  ];
+  this._models = {};
+  
+  this.initialize = function() {
+    var me = this;
+    
+    if (this._autoSave) {
+      eventHooks.forEach(function(eventName) {
+        me.on(eventName, function() {
+          me.sync.apply(me, [eventName].concat([].slice.call(arguments)));
+        });
+      });
+    }
+    
+    var count =  this._proxy.getCount();
+    
+    incr = count ? count-1 : 0;
+  };
+  
+  this.getModel = function() {
+    return this._model;
+  };
+  
+  this.load = function(options) {
+    this._proxy.load(options);
+  };
+  
+  this.sync = function(operation) {
+    this._proxy[operation].apply(this._proxy, [].slice.call(arguments, 1));
+  };
+  
+  this.create = function(data, add) {
+    var model = this._model;
+    var model = new model(data);
+    
+    this.fireEvent('create', model);
+    return add ? this.add(model) : model;
+  };
+  
+  this.add = function(model, silent) {
+    var newRecords = [];
+    var me = this;
+    var models;
+    
+    if (!Array.isArray(model)) {
+      models = [model];
+    }
+    
+    models.forEach(function(record) {
+      if (!(record instanceof me._model)) {
+        throw new Error('Model is not an instance of the model class defined for this collection.');
+      }
+      if (!record.id) {
+        incr++;
+        record[record._idProperty] = incr;
+        me._models[record._name + '-' + incr] = record;
+      } else {
+        record[record._idProperty] = id;
+        me._models[record._name + '-' + id] = record;
+      }
+      newRecords.push(record);
+      if (!silent) {
+        me.fireEvent('add', record, incr);
+      } else {
+        me.fireEvent('loadrecord', record, incr);
+      }
+    });
+    
+    newRecords.forEach(function(record) {
+      record.on('update', function(data, field, value) {
+        me.fireEvent('update', this, this[this._idProperty]);
+      });
+    });
+    
+    return newRecords;
+  };
+  
+  this.remove = function(index) {
+    var key = this._model.prototype._name + '-' + index;
+    var record = this._models[key];
+    
+    if (record) {
+      delete this._models[key];
+      this.fireEvent('remove', index);
+    }
+  };
+  
+  this.clear = function() {
+    this._models = {};
+    this.fireEvent('empty');
+  };
+  
+  this.count = function() {
+    return this._proxy.getCount();
+  };
+  
+  this.forEach = function(callback, scope) {
+    var i = 0;
+    var key;
+    
+    for (key in this._models) {
+      callback.call(scope || this, this._models[key], key, i++);
+    }
+  }
+  
+  this.sort = function() {
+    var models = [];
+    var sorter = this._sorter;
+    
+    this.forEach(function(value, key) { models.push([value, key]); });
+    
+    if (!models[0]) {
+      return this._models;
+    }
+    if (sorter == models[0]._idProperty) {
+      models.sort(function(a, b) {
+        return a[0][a._idProperty] - b[0][b._idProperty];
+      });
+    } else {
+      models.sort(function(a, b) {
+        return utf8FloatValue(a[0]._values[sorter].toLowerCase()) - utf8FloatValue(b[0]._values[sorter].toLowerCase());
+      });
+    }
+    
+    var ret = {};
+    models.forEach(function(model) {
+      ret[model[1]] = model[0];
+    });
+    
+    return this._models = ret;
+  };
+  
+  var utf8FloatValue = function(string) {
+    return parseFloat(Utf8.encode(string, true));
+  };
+  
+  /**
+  *
+  *  UTF-8 data encode / decode
+  *  http://www.webtoolkit.info/
+  *
+  **/
+  var Utf8 = {
+
+    // public method for url encoding
+    encode : function (string, raw) {
+      string = string.replace(/\r\n/g,"\n");
+      var utftext = "";
+
+      for (var n = 0; n < string.length; n++) {
+
+        var c = string.charCodeAt(n);
+        
+        if (raw) {
+          utftext += c;
+          continue;
+        }
+
+        if (c < 128) {
+          utftext += String.fromCharCode(c);
+        }
+        else if((c > 127) && (c < 2048)) {
+          utftext += String.fromCharCode((c >> 6) | 192);
+          utftext += String.fromCharCode((c & 63) | 128);
+        }
+        else {
+          utftext += String.fromCharCode((c >> 12) | 224);
+          utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+          utftext += String.fromCharCode((c & 63) | 128);
+        }
+
+      }
+
+      return utftext;
+    },
+
+    // public method for url decoding
+    decode : function (utftext) {
+      var string = "";
+      var i = 0;
+      var c = 0, c1 = 0, c2 = 0;
+
+      while ( i < utftext.length ) {
+
+        c = utftext.charCodeAt(i);
+
+        if (c < 128) {
+          string += String.fromCharCode(c);
+          i++;
+        }
+        else if((c > 191) && (c < 224)) {
+          c2 = utftext.charCodeAt(i+1);
+          string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+          i += 2;
+        }
+        else {
+          c2 = utftext.charCodeAt(i+1);
+          c3 = utftext.charCodeAt(i+2);
+          string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+          i += 3;
+        }
+
+      }
+
+      return string;
+    }
+
+  }
+
+}).call($.Collection.prototype);
+
+})();

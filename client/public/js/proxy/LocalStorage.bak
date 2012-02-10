@@ -1,0 +1,110 @@
+(function() {
+"use strict";
+
+var proxy = $.LocalStorageProxy = function(ns) {
+  $.Proxy.call(this);
+  
+  if (!ns) {
+    throw new Error('Namespace is necessary. Ideally the model\'s name should be used');
+  }
+  this.ns = ns;
+  this.proxy = localStorage;
+};
+
+$.Function.inherits(proxy, $.Proxy);
+
+(function() {
+  
+  this._trackingProperty = 'ids';
+  
+  this.getCount = function() {
+    var count = this.proxy.getItem(this.ns + '-' + this._countProperty);
+    
+    return count ? Number(count) : 0;
+  };
+  
+  this._setCount = function(count) {
+    this.proxy.setItem(this.ns + '-' + this._countProperty, count);
+  };
+  
+  this.load = function(key) {
+    var i = 0;
+    var results = [];
+    
+    if (!this.getCount()) {
+      return results;
+    }
+    var ids = this.getIds();
+    
+    for (; i <= ids.length-1; i++) {
+      results.push(this.read(this.ns + '-' + ids[i]));
+    }
+    return results;
+  };
+  
+  this.getIds = function() {
+    var key = this.ns + '-' + this._trackingProperty;
+    
+    if (this.proxy[key] === undefined) {
+      this.proxy.setItem(key, '');
+      return [];
+    }
+    var ids = this.proxy.getItem(key).split(',');
+    
+    if (ids.length > 0 && ids[0] == '') {
+      return [];
+    }
+    return ids;
+  };
+  
+  this.setIds = function(ids) {
+    this.proxy.setItem(this.ns + '-' + this._trackingProperty, ids.join(','));
+  };
+  
+  this.read = function(key) {
+    return JSON.parse(this.proxy.getItem(key));
+  };
+  
+  this.add = function(model, index) {
+    var key = this.ns + '-' + index;
+    console.log(key);
+    if (!this.read(key)) {
+      this.proxy.setItem(key, JSON.stringify(model.getData()));
+      
+      var ids = this.getIds();
+      
+      if (!ids.length) {
+        ids = [index];
+      } else {
+        ids.push(index);
+      }
+      this.setIds(ids);
+      
+      var count = this.getCount();
+      this._setCount(++count);
+    }
+  };
+  
+  this.remove = function(index) {
+    var key = this.ns + '-' + index;
+    
+    delete this.proxy[key];
+    
+    var ids = this.getIds();
+    var iof = ids.indexOf(''+index);
+    
+    this.setIds(ids.slice(0, iof).concat(ids.slice(iof+1)));
+    
+    var count = this.getCount();
+    this._setCount(--count);
+  };
+  
+  this.update = function(model, index) {
+    var key = this.ns + '-' + index;
+    
+    this.proxy.setItem(key, JSON.stringify(model.getData()));
+  };
+  
+}).call($.LocalStorageProxy.prototype);
+
+})();
