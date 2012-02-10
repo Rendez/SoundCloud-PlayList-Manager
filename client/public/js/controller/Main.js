@@ -39,13 +39,13 @@ $.Function.inherits(controller, $.Controller);
         redirect_uri: location.href + 'callback'
       });
       return false;// start oauth protocol
+    } else {
+      SC.initialize({
+        client_id: "86f417f675c0c943e264fe229510fe8a",
+        redirect_uri: location.href + 'callback',
+        access_token: authenticated
+      });
     }
-    
-    SC.initialize({
-      client_id: "86f417f675c0c943e264fe229510fe8a",
-      redirect_uri: location.href + 'callback',
-      access_token: authenticated
-    });
     
     var me = this;
     SC.whenStreamingReady(function(){
@@ -59,7 +59,7 @@ $.Function.inherits(controller, $.Controller);
     var me = this;
     
     SC.connect(function() {
-      
+      alert('connect')
     });
   }
   
