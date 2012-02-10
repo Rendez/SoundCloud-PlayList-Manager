@@ -20,4 +20,4 @@ app.get('/callback', function(req, res){
   });
 });
 
-app.listen(40812);
+app.listen(process.env.PORT || 3000);
