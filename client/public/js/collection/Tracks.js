@@ -21,7 +21,7 @@ $.Function.inherits(collection, $.Collection);
       me.create(data, options);
     });
     
-    this.fireEvent('load', null, this);
+    //this.fireEvent('load', null, this);
   };
   
   this.save = function() {

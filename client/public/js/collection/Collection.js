@@ -35,7 +35,8 @@ $.Function.mixin(collection, $.Events);
   var eventHooks = [
     'add',
     'remove',
-    'update'
+    'update',
+    'reset'
   ];
   
   this.initConfig = function(options) {
@@ -65,6 +66,14 @@ $.Function.mixin(collection, $.Events);
     return this.models[index];
   };
   
+  this.first = function() {
+    return this.models[0];
+  };
+  
+  this.last = function() {
+    return this.models[this.models.length - 1];
+  };
+  
   this.reset = function(models, options) {
     models  || (models = []);
     options || (options = {});
@@ -74,7 +83,7 @@ $.Function.mixin(collection, $.Events);
       }
     }
     this._reset();
-    this.add(models, {silent: true, parse: options.parse});
+    this.add(models, {silent: true});
     if (!options.silent) this.fireEvent('reset', this, options);
     return this;
   };
@@ -118,7 +127,9 @@ $.Function.mixin(collection, $.Events);
     // var coll = this;
     options = $.Object.merge(options || {}, {add: true})
     model = this._prepareModel(model);
+    
     // if (!model) return false;
+    
     if (options.add) {
       this.add(model, options);
     }
@@ -161,8 +172,24 @@ $.Function.mixin(collection, $.Events);
     return this;
   },
   
+  this.destroy = function(options) {
+    var l, model;
+    
+    options || (options = {});
+    while (model = this.models.pop()) {
+      delete this._byId[model[model._idProperty]];
+      this.length--;
+      if (!options.silent) {
+        options.index = this.models.length - 1;
+        this.fireEvent('remove', model, this, options);
+      }
+    }
+    this._reset();
+  };
+  
   this._reindex = function(index) {
     var model;
+    index = index || 0;
     
     for (var len = this.models.length; index < len; index++) {
       model = this.models[index];

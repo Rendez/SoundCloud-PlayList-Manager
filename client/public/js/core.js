@@ -1,3 +1,9 @@
+/**
+ * Imitating jQuery, MooTools and whatnot, the dollar(s) functions are DOM selectors
+ * and at the same time the micro-framework's sandbox.
+ * Everything is self contained inside $ in order to avoid global collisions.
+ */
+
 $ = function(selector, context) {
   context || (context = document);
   return context.querySelector(selector);
@@ -8,6 +14,9 @@ $$ = function(selector, context) {
   return context.querySelectorAll(selector);
 };
 
+/**
+ * Application class
+ */
 (function() {
 "use strict";
 
@@ -52,6 +61,9 @@ $.Application = function(options) {
     }
   };
   
+  /**
+   * @todo
+   */
   this.getHistory = function() {
     return this._history;
   };
@@ -62,6 +74,10 @@ $.Application = function(options) {
 
 }).call($.Application.prototype);
 
+/**
+ * Event handler class
+ * @mixin
+ */
 $.Events = function(events) {
   this._events = {};
 };
@@ -111,11 +127,16 @@ $.Events = function(events) {
 
 }).call($.Events.prototype);
 
+/**
+ * Create namespaces inside $ using the same JS natives for easier referal.
+ */
 ['Function', 'String', 'Object', 'Number', 'Array'].forEach(function(primitive) {
   $[primitive] = {};
 });
 
-// Utils
+/**
+ * Class and Natives extended
+ */
 $.Function.inherits = function(subClass, superClass) {
   var F = function() {};
   F.prototype = superClass.prototype;
@@ -155,6 +176,9 @@ $.tplSettings = {
   escape      : /<%-([\s\S]+?)%>/g
 };
 
+/**
+ * Micro-templating enging used by the views. Based on Underscore.js'
+ */
 $.tpl = function(str, data) {
   var c = this.tplSettings;
   var tpl = 'var __p=[],print=function(){__p.push.apply(__p,arguments);};' +
@@ -182,6 +206,9 @@ $.tpl = function(str, data) {
   
 };
 
+/**
+ * Polyfills for older browsers and Safari's lack of "bind"
+ */
 if (typeof Object.create !== 'function') {
     Object.prototype.create = function (o) {
         function F() {}

@@ -11,11 +11,18 @@ $.Function.inherits(view, $.View);
   
   this.defaults = {
     tagName: 'li',
-    tpl: '<a class="awesome small red">Remove</a><a class="awesome small blue">Edit</a><div><%= title %></div>'
+    tpl: '<!--a class="awesome small red">Remove</a--><a class="awesome small blue">Edit</a><div><%= title %></div>'
+  };
+  
+  this.stopEditing = function(e) {
+    if (e.keyCode == 13) {
+      e.stopPropagation = true;
+      this.editComplete(e);
+    }
   };
   
   this.remove = function(e) {
-    this.container.collection.remove(this.getModel().getId());
+    this.container.collection.remove(this.getModel());
   };
   
   this.select = function(e) {

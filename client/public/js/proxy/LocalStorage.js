@@ -56,9 +56,9 @@ var proxy = $.LocalStorageProxy = function(ns) {
       key = me.ns + '-' + model.id;
       me._write(key, JSON.stringify(data));
     });
-    if (models.length) {
+    //if (models.length) {
       me.count(models.length);
-    }
+    //}
   };
   
   this.count = function(count) {

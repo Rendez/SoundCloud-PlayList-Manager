@@ -1,6 +1,9 @@
 (function() {
 "use strict";
 
+/**
+ * Search autocomplete.
+ */
 var controller = $.SearchController = function(config) {
   controller.superclass.constructor.call(this, config);
 };
@@ -12,15 +15,21 @@ $.Function.inherits(controller, $.Controller);
   this.views = ['SearchResult'];
   
   this.initialize = function() {
-    $('#search-field').removeAttribute('disabled');
     this.ajax = new $.AjaxProxy();
     this.ajax.setAccessToken(localStorage.getItem('soundcloud-authtoken'));
+    this.ajax.setClientId(this.application.config[location.href].client_id);
     this.ajax.on('success', this.onSuccess.bind(this));
     
     $('#search-field').addEventListener('keyup', this.onSearch.bind(this));
   };
   
+  /**
+   * While the user types, request as sequentially cancelled. When more than 3 characters are typed and left alone, the search process will complete execution
+   */
   this.onSearch = function(e) {
+    if (e.keyCode == 27) {
+      return $('#search-results').className = '';
+    }
     var value = e.target.value;
     
     if (value.length < 3) {
@@ -32,6 +41,9 @@ $.Function.inherits(controller, $.Controller);
     this.request = this.ajax.request({query: value}).send();
   };
   
+  /**
+   * Creates SearchResult view objects (results rows) and displays them as loaded.
+   */
   this.onSuccess = function(results) {
     var container = $('#search-results');
     

@@ -14,7 +14,7 @@ $.Function.mixin(proxy, $.Events);
   
   var defaults = {
     method: 'GET',
-    url: 'http://api.soundcloud.com/tracks.json?client_id=86f417f675c0c943e264fe229510fe8a&order=hotness&q=',
+    url: 'http://api.soundcloud.com/tracks.json?filter=streamable', //&order=hotness
     query: '',
     headers: {
       // 'X-Requested-With': 'XMLHttpRequest',
@@ -25,6 +25,10 @@ $.Function.mixin(proxy, $.Events);
   
   this.setAccessToken = function(str) {
     defaults.accessToken = str;
+  };
+  
+  this.setClientId = function(hash) {
+    defaults.clientId = hash;
   };
   
   this.initialize = function() {
@@ -39,8 +43,9 @@ $.Function.mixin(proxy, $.Events);
   
   this.request = function(options) {
     var opts = $.Object.merge(defaults, options);
+    var url = opts.url + '&q=' + options.query + '&client_id=' + opts.clientId + '&access_token=' + opts.accessToken;
     
-    this.proxy.open(opts.method, opts.url + options.query + '&access_token=' + opts.accessToken, true);
+    this.proxy.open(opts.method, url, true);
     this.setHeaders(opts.headers);
     return this.proxy;
   };

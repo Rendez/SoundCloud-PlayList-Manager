@@ -1,6 +1,12 @@
 (function() {
 "use strict";
 
+/**
+ * View class. Represents a single item view, and is handled a unique model with data.
+ * Uses micro-templating engine to generate a DOM element filled with values.
+ * This class should be extended should custom methods be added to handle the assigned DOM events.
+ */
+
 $.View = function(model, config) {
   this.initConfig(config);
   

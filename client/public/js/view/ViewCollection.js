@@ -1,6 +1,12 @@
 (function() {
 "use strict";
 
+/**
+ * Class used to bind a collection with a container view. It acts as a simple UI component
+ * with binded events to the passed collection, allowing for the view items to be converted
+ * to DOM elements and so forth.
+ */
+
 var __slice = Array.prototype.slice;
 
 var view = $.ViewCollection = function(config) {
@@ -97,10 +103,14 @@ $.Function.mixin(view, $.Events);
     return this.el.getElementsByTagName(this.view.prototype.defaults.tagName);
   };
   
+  this.last = function() {
+    return this.views[this.views.length - 1];
+  };
+  
   this.setSelection = function(item) {
     var previous = this.selected;
     
-    if (previous && previous === this.selected) {
+    if (previous && previous === item) {
       return;
     }
     this.selected = item;

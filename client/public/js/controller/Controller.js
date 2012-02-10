@@ -1,6 +1,9 @@
 (function() {
 "use strict";
 
+/**
+ * Base controller class
+ */
 $.Controller = function(config) {
   this.initConfig(config);
   this.initialize();
@@ -13,6 +16,9 @@ $.Controller = function(config) {
     //stores: []
   };
   
+  /**
+   * Sets the configurations passed as the first class' parameter
+   */
   this.initConfig = function(options) {
     var config = $.Object.merge(defaults, options);
 
@@ -53,6 +59,11 @@ $.Controller = function(config) {
     return this.stores[name];
   };
   
+  /**
+   * Parses a 'control' configuration (usually defined in the controller subclass)
+   * and returns a convenient parsed object. THe controller should use it to assign
+   * DOM events to every view.
+   */
   this.control = function(config) {
     var events = [], delegate, selector, type, parts;
     

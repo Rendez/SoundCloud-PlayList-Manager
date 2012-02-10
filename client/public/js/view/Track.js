@@ -16,14 +16,17 @@ $.Function.mixin(view, $.Events);
     tpl: '<button class="play"><button class="remove"></button></button><span><%= title %></span>'
   };
   
-  this.select = function() {
+  this.select = function(e) {
     var el = this.dom;
     var viewItems = this.container.getViewItems();
     
     for (var i = 0; i < viewItems.length; i++) {
       viewItems[i].className = '';
     }
-    console.log(this);
+    
+    if (!el) {
+      el = (e && e.target) || e;
+    }
     
     el.className = 'selected';
     this.container.setSelection(this);

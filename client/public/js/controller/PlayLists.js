@@ -14,7 +14,8 @@ $.Function.inherits(controller, $.Controller);
     'blur div': 'editComplete',
     'focus div': 'selectRange',
     'click .red': 'remove',
-    'click': 'select'
+    'click': 'select',
+    'keydown div': 'stopEditing'
   };
   
   this.views = ['PlayList'];
@@ -54,24 +55,43 @@ $.Function.inherits(controller, $.Controller);
       sorter: 'title'
     });
     
+    coll.on('remove', this.handleRemovePlayList.bind(this));
+    
     this.component = new $.ViewCollection({
       el: '#playlists',
       collection: coll,
       view: this.getView('PlayList'),
       listeners: this.control(control)
     });
-    coll.load({silent: true});
     
     this.component.on('selection', function(item) {
       $('#playlist-description').value = item.getModel().getData().description;
     });
+    
+    this.component.on('update', function(list) {
+      var last = list.last();
+      if (last && last.dom) last.select(last.dom);
+      // me.getApplication().mainController.trackList.component.trigger('selection', last);
+    });
+    
+    coll.load({silent: true});
   };
   
   this.selectFirst = function() {
     if (this.component.views.length) {
       this.component.views[0].select(this.component.views[0].dom);
     }
-  }
+  };
+  
+  /**
+   * Fires up a delegated method in order to remove the items in the TrackList
+   * associated with the removed PlayList.
+   */
+  this.handleRemovePlayList = function(model) {
+    console.log('[INFO] "remove" playlist.', this);
+    
+    this.getApplication().mainController.trigger('playlistremove', this, model);
+  };
   
 }).call(controller.prototype);
 

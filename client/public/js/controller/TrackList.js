@@ -23,6 +23,7 @@ $.Function.inherits(controller, $.Controller);
   };
   
   this.changeTrackList = function(item) {
+    console.log('[INFO] "selection" PlayLists component.');
     var me = this;
     var playListId = item.getModel().getId();
     var Tracks = this.getCollection('Tracks');
@@ -45,15 +46,17 @@ $.Function.inherits(controller, $.Controller);
       item.on('beforeload', me.handleLoadTrack.bind(me));
     });
     
-    coll.load(playListId, {silent: true});
+    coll.load(/*{silent: true}*/);
     
-    setTimeout(function(){ me.component.views[0].loadTrack(); }, 1000); // @todo First thing to fix after testing.
+    setTimeout(function(){ if (me.component.views[0]) me.component.views[0].loadTrack(); }, 1000); // @todo First thing to fix after testing. Also test if track is already playing.
     
     this.component.on('update', function(list) {
       if (list.selected) {
         list.selected.select();
       }
     });
+    
+    this.getApplication().mainController.trigger('tracklistchange', this, this.component, item);
   };
   
   this.selectCurrentTrack = function(list) {
