@@ -183,11 +183,33 @@ $.tpl = function(str, data) {
 };
 
 if (typeof Object.create !== 'function') {
-    Object.create = function (o) {
+    Object.prototype.create = function (o) {
         function F() {}
         F.prototype = o;
         return new F();
     };
+}
+
+if (typeof Function.bind === 'undefined') {
+  Function.prototype.bind = function(that) {
+    var __slice = Array.prototype.slice,
+      me = this,
+      args = arguments.length > 1 ? __slice.call(arguments, 1) : null,
+      F = function(){};
+
+    var bound = function(){
+      var context = that, length = arguments.length;
+      if (this instanceof bound){
+        F.prototype = me.prototype;
+        context = new F;
+      }
+      var result = (!args && !length)
+        ? me.call(context)
+        : me.apply(context, args && length ? args.concat(__slice.call(arguments)) : args || arguments);
+      return context == that ? result : context;
+    };
+    return bound;
+  };
 }
 
 })();
