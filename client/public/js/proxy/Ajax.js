@@ -14,7 +14,7 @@ $.Function.mixin(proxy, $.Events);
   
   var defaults = {
     method: 'GET',
-    url: 'http://api.soundcloud.com/tracks.json?client_id=86f417f675c0c943e264fe229510fe8a&order=hotness&q=',
+    url: 'http://api.soundcloud.com/tracks.json?client_id=e0972a9396a694adedadde6caf4287ac&order=hotness&q=',
     query: '',
     headers: {
       // 'X-Requested-With': 'XMLHttpRequest',
