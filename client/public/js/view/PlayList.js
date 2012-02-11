@@ -11,7 +11,7 @@ $.Function.inherits(view, $.View);
   
   this.defaults = {
     tagName: 'li',
-    tpl: '<!--a class="awesome small red">Remove</a--><a class="awesome small blue">Edit</a><div><%= title %></div>'
+    tpl: '<a class="awesome small red">Remove</a><a class="awesome small blue">Edit</a><div><%= title %></div>'
   };
   
   this.stopEditing = function(e) {

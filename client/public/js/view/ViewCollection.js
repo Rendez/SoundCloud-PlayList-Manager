@@ -121,7 +121,7 @@ $.Function.mixin(view, $.Events);
     var found = null;
     
     this.views.forEach(function(view) {
-      if (view.model.id == (record && record.id)) {
+      if (view.model.getId() == (record && record.getId())) {
         found = view;
       }
     });

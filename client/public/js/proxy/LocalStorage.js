@@ -11,16 +11,17 @@ var proxy = $.LocalStorageProxy = function(ns) {
 
 (function() {
   
-  this._countProperty = 'count';
+  this._idsProperty = 'ids';
   
   this.load = function() {
-    var len, key, value, data = [];
+    var key, value, data = [], me = this;
     
-    for (var i = 0, len = this.count(); i < len; i++) {
-      key = this.ns + '-' + i;
-      value = this._read(key);
+    this.range().forEach(function(id) {
+      key = me.ns + '-' + id;
+      value = me._read(key);
       if (value) data.push(JSON.parse(value));
-    }
+    });
+    
     return data;
   };
   
@@ -28,7 +29,7 @@ var proxy = $.LocalStorageProxy = function(ns) {
     if (this.proxy[key]) {
       return this.proxy.getItem(key);
     }
-    return null;
+    return '';
   };
   
   this._write = function(key, value) {
@@ -36,42 +37,46 @@ var proxy = $.LocalStorageProxy = function(ns) {
   };
   
   this._reset = function() {
-    var len, key;
+    var me = this, key;
     
-    for (var i = 0, len = this.count(); i < len; i++) {
-      key = this.ns + '-' + i;
-      delete this.proxy[key];
-    }
+    this.range().forEach(function(id) {
+      key = me.ns + '-' + id;
+      delete me.proxy[key];
+    });
+    delete this.proxy[this.ns + '-' + this._idsProperty];
   };
   
   this.save = function(models) {
     var data, key;
     var me = this;
+    var ids = [];
     
-    this._reset();
     Array.isArray(models) ? models.slice() : [models];
+    this._reset();
     
     models.forEach(function(model) {
       data = model.getData();
-      key = me.ns + '-' + model.id;
+      data[model._idProperty] = model.getId();
+      key = me.ns + '-' + model.getId();
+      ids.push(model.getId());
       me._write(key, JSON.stringify(data));
     });
     //if (models.length) {
-      me.count(models.length);
+    this.range(ids);
     //}
   };
   
-  this.count = function(count) {
-    var key = this.ns + '-' +this._countProperty;
+  this.range = function(range) {
+    var key = this.ns + '-' + this._idsProperty;
     
-    if (!this.proxy[key]) {
-      this.proxy.setItem(key, '0');
+    if (Array.isArray(range)) {
+      this._write(key, range.join(','));
     }
-    if (count && typeof count === 'number') {
-      this.proxy.setItem(key, count);
+    else if (!this.proxy[key]) {
+      this._write(key, '');
     }
     
-    return Number(this.proxy.getItem(key));
+    return this._read(key).split(',');
   };
   
 }).call(proxy.prototype);

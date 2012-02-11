@@ -4,14 +4,6 @@
 var model = $.Model = function(data, options) {
   $.Events.call(this);
   
-  // if (!this._name) {
-  //   if (!(options && options.name)) {
-  //     throw new Error('Model needs the first parameter to define options.');
-  //   }
-  // } else if (options) {
-  //   this._name = options.name;
-  // }
-  
   this._idProperty = 'id';
   this._values = {};
   
@@ -19,12 +11,15 @@ var model = $.Model = function(data, options) {
     if (data instanceof $.Model) {
       data = data.getData();
     }
+    var id = data.id;
+    
+    if (id >= 0) {
+      this[this._idProperty] = id;
+      delete data.id;
+    }
     for (var k in data) {
       this._values[k] = data[k];
     }
-    // if (!(this._idProperty in this._values)) {
-    //   this._values[this._idProperty] = this._internalId++;
-    // }
   }
 };
 
@@ -44,6 +39,10 @@ $.Function.mixin(model, $.Events);
   
   this.getId = function() {
     return this[this._idProperty];
+  };
+  
+  this.getName = function() {
+    return this._name;
   };
   
   this.set = function(field, value) {

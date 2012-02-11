@@ -3,6 +3,11 @@
 
 var __slice = Array.prototype.slice;
 
+var idCounter = 0;
+var uniqueId = function() {
+  return idCounter++;
+};
+
 var collection = $.Collection = function(models, options) {
   $.Events.call(this);
   
@@ -101,15 +106,14 @@ $.Function.mixin(collection, $.Events);
       }
       ids[id] = model;
     }
-    index = options.at != null ? options.at : this.models.length;
     
     for (i = 0; i < length; i++) {
       (model = models[i]).on('update', this._handleEvent.bind(this));
-      this._byId[(model[model._idProperty] != null) ? model[model._idProperty] : (model[model._idProperty] = index+i)] = model;
+      this._byId[(model[model._idProperty] != null) ? model[model._idProperty] : (model[model._idProperty] = uniqueId())] = model;
     }
     
     this.length += length;
-    // index = options.at != null ? options.at : this.models.length;
+    index = options.at != null ? options.at : this.models.length;
     Array.prototype.splice.apply(this.models, [index, 0].concat(models));
     //this.sort({silent: true});
     if (options.silent) {
@@ -155,12 +159,12 @@ $.Function.mixin(collection, $.Events);
     for (i = 0, l = models.length; i < l; i++) {
       model = /*this.getByCid(models[i]) || */this.get(models[i]);
       if (!model) continue;
-      delete this._byId[model[model._idProperty]];
+      delete this._byId[model.getId()];
       // delete this._byCid[model.cid];
       index = this.models.indexOf(model);
       this.models.splice(index, 1);
       this.length--;
-      this._reindex(index);
+      // this._reindex(index);
       if (!options.silent) {
         options.index = index;
         this.fireEvent('remove', model, this, options);
@@ -173,7 +177,8 @@ $.Function.mixin(collection, $.Events);
   },
   
   this.destroy = function(options) {
-    var l, model;
+    this.remove(this.models);
+    /*var l, model;
     
     options || (options = {});
     while (model = this.models.pop()) {
@@ -184,10 +189,10 @@ $.Function.mixin(collection, $.Events);
         this.fireEvent('remove', model, this, options);
       }
     }
-    this._reset();
+    this._reset();*/
   };
   
-  this._reindex = function(index) {
+  /*this._reindex = function(index) {
     var model;
     index = index || 0;
     
@@ -196,7 +201,7 @@ $.Function.mixin(collection, $.Events);
       model[model._idProperty] = model[model._idProperty] - 1;
       this.models[index] = model;
     }
-  };
+  };*/
   
   this._handleEvent = function(model, collection, options, ev) {
     if (!ev) {

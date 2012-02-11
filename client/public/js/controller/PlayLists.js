@@ -67,12 +67,12 @@ $.Function.inherits(controller, $.Controller);
     this.component.on('selection', function(item) {
       $('#playlist-description').value = item.getModel().getData().description;
     });
-    
-    this.component.on('update', function(list) {
-      var last = list.last();
-      if (last && last.dom) last.select(last.dom);
-      // me.getApplication().mainController.trackList.component.trigger('selection', last);
-    });
+    // 
+    // this.component.on('update', function(list) {
+    //   var last = list.last();
+    //   if (last && last.dom) last.select(last.dom);
+    //   // me.getApplication().mainController.trackList.component.trigger('selection', last);
+    // });
     
     coll.load({silent: true});
   };
