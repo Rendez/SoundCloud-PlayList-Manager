@@ -1,6 +1,10 @@
 (function() {
 "use strict";
 
+/**
+ * Represents data with an uniquely generated identifier.
+ */
+
 var model = $.Model = function(data, options) {
   $.Events.call(this);
   

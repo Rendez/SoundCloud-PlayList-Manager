@@ -1,6 +1,14 @@
 (function() {
 "use strict";
 
+/**
+ * Uses webstorage to persist data models. It keeps track of related entries
+ * by using a separate comma-separated numeric range, containing the model's ids.
+ * When it's time to read/write, this range is extracted and the resulting array
+ * used to iterate through in order to find all the entries of a namespace; commonly,
+ * a model name property.
+ */
+
 var proxy = $.LocalStorageProxy = function(ns) {
   if (!ns) {
     throw new Error('Namespace is necessary. Ideally the model\'s name should be used');

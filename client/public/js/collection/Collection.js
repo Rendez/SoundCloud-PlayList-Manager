@@ -1,6 +1,13 @@
 (function() {
 "use strict";
 
+/**
+ * Collections have the purpose of storing a set of models. Inside a ViewCollection
+ * class, an instance of Collection is a composite and some events are binded
+ * which allows to (re)draw the layouts when some model(s) is/are updated,
+ * created or removed from teh store.
+ */
+
 var __slice = Array.prototype.slice;
 
 var idCounter = 0;
@@ -37,6 +44,10 @@ $.Function.mixin(collection, $.Events);
     autoSave: true
   };
   
+  /**
+   * When these events are fired, internally 'sync' event gets called, converting
+   * them to atomic operations (all or nothing).
+   */
   var eventHooks = [
     'add',
     'remove',
@@ -120,7 +131,6 @@ $.Function.mixin(collection, $.Events);
       return this;
     }
     for (i = index, length = this.models.length; i < length; i++) {
-      // if (!cids[(model = this.models[i]).cid]) continue;
       options.index = i;
       this.fireEvent('add', model, this, options);
     }
@@ -128,26 +138,12 @@ $.Function.mixin(collection, $.Events);
   };
   
   this.create = function(model, options) {
-    // var coll = this;
     options = $.Object.merge(options || {}, {add: true})
     model = this._prepareModel(model);
-    
-    // if (!model) return false;
-    
+
     if (options.add) {
       this.add(model, options);
     }
-
-    // var success = options.success;
-    //     options.success = function(nextModel, resp, xhr) {
-    //       if (options.wait) coll.add(nextModel, options);
-    //       if (success) {
-    //         success(nextModel, resp);
-    //       } else {
-    //         nextModel.trigger('sync', model, resp, options);
-    //       }
-    //     };
-    // model.save(null, options);
     return model;
   };
   
@@ -157,14 +153,12 @@ $.Function.mixin(collection, $.Events);
     options || (options = {});
     models = Array.isArray(models) ? models.slice() : [models];
     for (i = 0, l = models.length; i < l; i++) {
-      model = /*this.getByCid(models[i]) || */this.get(models[i]);
+      model = this.get(models[i]);
       if (!model) continue;
       delete this._byId[model.getId()];
-      // delete this._byCid[model.cid];
       index = this.models.indexOf(model);
       this.models.splice(index, 1);
       this.length--;
-      // this._reindex(index);
       if (!options.silent) {
         options.index = index;
         this.fireEvent('remove', model, this, options);
@@ -178,30 +172,7 @@ $.Function.mixin(collection, $.Events);
   
   this.destroy = function(options) {
     this.remove(this.models);
-    /*var l, model;
-    
-    options || (options = {});
-    while (model = this.models.pop()) {
-      delete this._byId[model[model._idProperty]];
-      this.length--;
-      if (!options.silent) {
-        options.index = this.models.length - 1;
-        this.fireEvent('remove', model, this, options);
-      }
-    }
-    this._reset();*/
   };
-  
-  /*this._reindex = function(index) {
-    var model;
-    index = index || 0;
-    
-    for (var len = this.models.length; index < len; index++) {
-      model = this.models[index];
-      model[model._idProperty] = model[model._idProperty] - 1;
-      this.models[index] = model;
-    }
-  };*/
   
   this._handleEvent = function(model, collection, options, ev) {
     if (!ev) {
